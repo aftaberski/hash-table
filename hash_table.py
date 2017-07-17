@@ -1,17 +1,15 @@
 class Node(object):
+    ''' Used to create a linked list for separate chaining in HashTable
 
+    Attributes:
+        key
+        value
+        next (Node): points to next node in linked list
+    '''
     def __init__(self, key=None, value=None, next_node=None):
         self.key = key
         self.value = value
         self.next = next_node
-
-    def __str__(self):
-        acc = []
-        cursor = self
-        while cursor is not None:
-            acc.append(cursor.value)
-            cursor = cursor.next
-        return str(acc)
 
 class HashTable(object):
     def __init__(self, num_buckets=11):
@@ -58,15 +56,21 @@ class HashTable(object):
         return None
 
     def add(self, key, value):
+        '''
+        Add key and corresponding value to HashTable instance
+
+        If load factor > 0.7, doubles the size of the bucket_array
+        '''
         bucket_index = self.get_bucket_index(key)
 
         # TODO: check if key is already in array
+        # If so, update value
 
         self.size += 1
         head = self.bucket_array[bucket_index]
         new_node = Node(key, value)
 
-        # Check if chain at index
+        # Check if there's a node at the index
         if head is None:
             self.bucket_array[bucket_index] = new_node
         else:
@@ -91,6 +95,9 @@ class HashTable(object):
                     node = node.next
 
     def remove(self, key):
+        '''
+        Remove key and corresponding value from HashTable instance
+        '''
         bucket_index = self.get_bucket_index(key)
         head = self.bucket_array[bucket_index]
 
