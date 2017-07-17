@@ -19,6 +19,14 @@ class HashTable(object):
         self.size = 0
         self.bucket_array = [None for _ in range(num_buckets)]
 
+    def __str__(self):
+        to_print = []
+        for node in self.bucket_array:
+            while node is not None:
+                to_print.append("%s: %s" % (node.key, node.value))
+                node = node.next
+        return "{%s}" % ", ".join(to_print)
+
     def is_empty(self):
         '''
         Returns boolean indicating whether a HashTable instance has no slots filled
@@ -82,6 +90,30 @@ class HashTable(object):
                     self.add(node.key, node.value)
                     node = node.next
 
+    def remove(self, key):
+        bucket_index = self.get_bucket_index(key)
+        head = self.bucket_array[bucket_index]
+
+        previous = None
+
+        while head is not None:
+            if head.key == key:
+                break
+            else:
+                previous = head
+                head = head.next
+
+        # Key not found
+        if head is None:
+            return None
+
+        self.size -= 1
+        if previous is not None:
+            previous.next = head.next
+        else:
+            self.bucket_array[bucket_index] = head.next
+
+        return head.value
 
 
 ht = HashTable()
@@ -90,4 +122,6 @@ print ht.get_bucket_index("hey")
 ht.add("key", "value")
 ht.add("hmmmm", "how bout this")
 ht.add("123", "Test")
-print ht.bucket_array
+print ht.get("hmmmm")
+print ht.remove("hmmmm")
+print ht
