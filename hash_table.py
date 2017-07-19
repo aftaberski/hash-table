@@ -15,11 +15,11 @@ class HashTable(object):
     def __init__(self, num_buckets=11):
         self.num_buckets = num_buckets
         self.size = 0
-        self.bucket_array = [None for _ in range(num_buckets)]
+        self.__bucket_array = [None for _ in range(num_buckets)]
 
     def __str__(self):
         to_print = []
-        for node in self.bucket_array:
+        for node in self.__bucket_array:
             while node is not None:
                 to_print.append("%s: %s" % (node.key, node.value))
                 node = node.next
@@ -31,7 +31,7 @@ class HashTable(object):
         '''
         return self.size == 0
 
-    def get_bucket_index(self, key):
+    def __get_bucket_index(self, key):
         '''
         Calculates index of key
         '''
@@ -43,8 +43,12 @@ class HashTable(object):
         return self.size * 1.0 / self.num_buckets
 
     def get(self, key):
-        bucket_index = self.get_bucket_index(key)
-        head = self.bucket_array[bucket_index]
+        '''
+        Return value if key is present. Otherwise,
+        return None
+        '''
+        bucket_index = self.__get_bucket_index(key)
+        head = self.__bucket_array[bucket_index]
 
         # Look for key in chain
         while head is not None:
@@ -61,33 +65,36 @@ class HashTable(object):
 
         If load factor > 0.7, doubles the size of the bucket_array
         '''
-        bucket_index = self.get_bucket_index(key)
+        bucket_index = self.__get_bucket_index(key)
+        head = self.__bucket_array[bucket_index]
 
-        # TODO: check if key is already in array
-        # If so, update value
+        # Update value if key is already present
+        while head is not None:
+            if head.key == key:
+                head.value = value
+            head = head.next
 
-        self.size += 1
-        head = self.bucket_array[bucket_index]
         new_node = Node(key, value)
 
         # Check if there's a node at the index
         if head is None:
-            self.bucket_array[bucket_index] = new_node
+            self.__bucket_array[bucket_index] = new_node
         else:
             current_node = head
             new_node.next = current_node
-            self.bucket_array[bucket_index] = new_node
+            self.__bucket_array[bucket_index] = new_node
 
+        self.size += 1
 
         # If load_factor > 0.7, double size of array
         if self.load_factor() > 0.7:
             new_num_buckets = 2 * self.num_buckets
-            temp_bucket_array = self.bucket_array
+            temp_bucket_array = self.__bucket_array
             new_bucket_array = [None for _ in range(new_num_buckets)]
 
             self.size = 0
             self.num_buckets = new_num_buckets
-            self.bucket_array = new_bucket_array
+            self.__bucket_array = new_bucket_array
 
             for node in temp_bucket_array:
                 while node is not None:
@@ -98,8 +105,8 @@ class HashTable(object):
         '''
         Remove key and corresponding value from HashTable instance
         '''
-        bucket_index = self.get_bucket_index(key)
-        head = self.bucket_array[bucket_index]
+        bucket_index = self.__get_bucket_index(key)
+        head = self.__bucket_array[bucket_index]
 
         previous = None
 
@@ -118,17 +125,17 @@ class HashTable(object):
         if previous is not None:
             previous.next = head.next
         else:
-            self.bucket_array[bucket_index] = head.next
+            self.__bucket_array[bucket_index] = head.next
 
         return head.value
 
 
 ht = HashTable()
 print ht.size
-print ht.get_bucket_index("hey")
 ht.add("key", "value")
 ht.add("hmmmm", "how bout this")
 ht.add("123", "Test")
+print ht.size
 print ht.get("hmmmm")
-print ht.remove("hmmmm")
+print ht.remove("hmmm")
 print ht
